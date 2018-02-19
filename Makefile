@@ -1,53 +1,58 @@
-NAME	:= fillit 
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: capetroa <marvin@42.fr>                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2018/02/19 14:45:25 by capetroa          #+#    #+#              #
+#    Updated: 2018/02/19 14:45:29 by capetroa         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+NAME = fillit
 
-# directories
-SRC_DIR	:= ./src
-INC_DIR	:= ./includes
-OBJ_DIR	:= ./obj
-LIB_DIR	:= ./lib
+SRC = main.c\
+	  arrange.c\
+	  check.c\
+	  read.c\
+	  shape.c\
+	  solve.c\
+	  tetriminos.c\
+	  usage.c
 
-# src / obj files
-SRC		:= main.c \
-		   reader.c \
-		   solver.c \
-		   map.c \
-		   tetrimino.c
-OBJ		:= $(addprefix $(OBJ_DIR)/,$(SRC:.c=.o))
+OBJ = $(SRC:.c=.o)
 
-# compiler and flags
-CC		:= gcc
-CFLAGS	:= -Wall -Wextra -Werror -pedantic -std=c99
-OFLAGS	:= -pipe -flto
-CFLAGS	+= $(OFLAGS)
+SRC_PATH = src/
 
-# libraries
-L_FT	:= $(LIB_DIR)/libft
+SRC_POS = $(addprefix $(SRC_PATH),$(SRC))
 
-include $(L_FT)/libft.mk
+INC = -I includes
 
-.PHONY: all clean fclean re
+LIBFT =	src/libft/libft.a
 
-all:
-	mkdir -p $(OBJ_DIR)
-	@$(MAKE) -C $(L_FT) --no-print-directory
-	@$(MAKE) $(NAME) --no-print-directory
+CC = gcc
 
-$(OBJ_DIR)/%.o:$(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) $(LIB_INC) -I $(INC_DIR) -o $@ -c $<
+FLAGS = -Wall -Wextra -Werror
 
-$(NAME): $(OBJ)
-	$(CC) $(OFLAGS) $(OBJ) $(LIB_LNK) -o $(NAME)
+all: $(NAME)
+
+$(NAME): $(LIBFT) $(OBJ)
+		$(CC) $(FLAGS) $(OBJ) -o $(NAME) $(LIBFT)
+
+$(OBJ): $(LIBFT)
+		$(CC) $(FLAGS) -c $(SRC_POS)
+
+$(LIBFT):
+		make -C ./src/libft/
 
 clean:
-	rm -rf $(OBJ_DIR)
+		rm -f $(OBJ)
+			make clean -C ./src/libft/
 
 fclean: clean
-	rm -rf $(NAME)
+		rm -f $(NAME)
+			make fclean -C ./src/libft/
 
-re:
-	@$(MAKE) fclean --no-print-directory
-	@$(MAKE) all --no-print-directory
+re: fclean all 
 
-relibs:
-	@$(MAKE) -C $(L_FT) re --no-print-directory
-	@$(MAKE) re --no-print-directory
+.PHONY : all, re, clean, flcean

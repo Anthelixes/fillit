@@ -1,30 +1,80 @@
-#include <stdio.h>
-#include <fcntl.h>
-#include "libft.h"
-#include "fillit.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: capetroa <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/02/19 14:53:37 by capetroa          #+#    #+#             */
+/*   Updated: 2018/02/19 19:08:40 by capetroa         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-/*
-** Entry point for our application
-*/
+#include "../include/fillit.h"
 
-int		main(int argc, char **argv)
+static void	puttab(char **tab)
 {
-	t_list	*list;
-	t_map	*map;
+	int i;
 
+	i = 0;
+	while (tab[i] != NULL)
+	{
+		ft_putstr(tab[i]);
+		ft_putchar('\n');
+		i++;
+	}
+}
+
+static int	get_square_size(void)
+{
+	int		square_size;
+	float	float_nb;
+
+	float_nb = ft_sqrt((float)(g_nb_tetrimino) * 4.0);
+	square_size = (int)float_nb;
+	if (square_size == float_nb)
+		return (square_size);
+	return (square_size);
+}
+
+void		free_tab(char **tab, int tab_size)
+{
+	int i;
+
+	i = 0;
+	while (i < tab_size)
+	{
+		ft_strdel(&tab[i]);
+		i++;
+	}
+	ft_strdel(tab);
+}
+
+int			main(int argc, char **argv)
+{
+	t_tetrimino *start;
+	char		**tab;
+
+	start = NULL;
+	tab = NULL;
 	if (argc != 2)
 	{
-		ft_putstr("usage: fillit input_file\n");
-		return (1);
+		ft_usage();
+		return (-1);
 	}
-	if ((list = read_tetri(open(argv[1], O_RDONLY))) == NULL)
+	if ((tab = read_stdin(argv[1])) == NULL)
 	{
-		ft_putstr("error\n");
-		return (1);
+		ft_putendl("error");
+		return (-1);
 	}
-	map = solve(list);
-	print_map(map);
-	free_map(map);
-	free_list(list);
+	if (check(tab) == 0)
+	{
+		ft_putendl("error");
+		free_tab(tab, g_nb_tetrimino + 1);
+		return (-1);
+	}
+	start = splittab(tab);
+	free_tab(tab, g_nb_tetrimino + 1);
+	puttab(solve(start, get_square_size(), NULL));
 	return (0);
 }
